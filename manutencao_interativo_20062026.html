@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Manutenção · 20/06/2026</title>
+<style>
+:root {
+  --bg: #0f1117; --bg2: #181b24; --bg3: #1e2130;
+  --border: #2a2e3f; --text: #e8eaf0; --muted: #6b7080;
+  --accent: #f59e0b; --red: #ef4444; --green: #22c55e;
+  --yellow: #eab308; --blue: #3b82f6;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: system-ui,-apple-system,sans-serif; font-size: 14px; max-width: 480px; margin: 0 auto; padding: 0 0 4rem; }
+
+/* HEADER */
+.header { padding: 1.25rem 1rem .75rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 10; }
+.header h1 { font-size: 17px; font-weight: 700; color: #fff; }
+.header p { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* TABS */
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: var(--bg); position: sticky; top: 64px; z-index: 9; }
+.tab { flex: 1; padding: 10px 4px; font-size: 12px; font-weight: 600; color: var(--muted); text-align: center; cursor: pointer; border-bottom: 2px solid transparent; transition: all .15s; }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* PAGES */
+.page { display: none; padding: 1rem; }
+.page.active { display: block; }
+
+/* SEARCH */
+.search-wrap { position: relative; margin-bottom: 1rem; }
+.search-wrap input {
+  width: 100%; padding: 10px 14px 10px 36px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text); font-size: 13px;
+  outline: none;
+}
+.search-wrap input:focus { border-color: var(--accent); }
+.search-wrap input::placeholder { color: var(--muted); }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; pointer-events: none; }
+
+/* FILTER CHIPS */
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
+.chip {
+  font-size: 11px; font-weight: 600; padding: 4px 10px;
+  border-radius: 20px; border: 1px solid var(--border);
+  background: var(--bg2); color: var(--muted); cursor: pointer;
+  transition: all .15s;
+}
+.chip.active { background: #f59e0b1a; border-color: #f59e0b55; color: var(--accent); }
+.chip.red.active { background: #ef44441a; border-color: #ef444455; color: var(--red); }
+.chip.green.active { background: #22c55e1a; border-color: #22c55e55; color: var(--green); }
+
+/* ORDEM CARD */
+.ordem-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; margin-bottom: 8px; overflow: hidden;
+  cursor: pointer; transition: border-color .15s;
+}
+.ordem-card:hover { border-color: var(--accent); }
+.ordem-card.open-detail { border-color: var(--accent); }
+.ordem-header { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; }
+.ordem-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.ordem-body { flex: 1; min-width: 0; }
+.ordem-equip { font-size: 13px; font-weight: 600; color: #fff; }
+.ordem-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.ordem-meta { display: flex; gap: 6px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+.tag-sm {
+  font-size: 10px; font-weight: 600; padding: 2px 7px;
+  border-radius: 8px; border: 1px solid var(--border);
+}
+.tag-open { background: #eab3080d; color: var(--yellow); border-color: #eab30840; }
+.tag-done { background: #22c55e0d; color: var(--green); border-color: #22c55e40; }
+.tag-hora { background: var(--bg3); color: var(--muted); border-color: var(--border); }
+.tag-manut { background: #3b82f60d; color: var(--blue); border-color: #3b82f640; }
+.tag-sem { background: #ef44440d; color: var(--red); border-color: #ef444440; }
+.chevron { color: var(--muted); font-size: 12px; flex-shrink: 0; transition: transform .2s; margin-top: 2px; }
+.chevron.open { transform: rotate(180deg); }
+
+/* DETALHE */
+.detalhe {
+  display: none; padding: 0 14px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--bg3);
+}
+.detalhe.show { display: block; }
+.det-row { display: flex; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+.det-row:last-child { border-bottom: none; }
+.det-label { font-size: 11px; color: var(--muted); min-width: 90px; flex-shrink: 0; }
+.det-val { font-size: 12px; color: var(--text); flex: 1; }
+.det-causa {
+  margin-top: 10px; padding: 10px 12px;
+  background: #22c55e0a; border: 1px solid #22c55e30;
+  border-radius: 8px; font-size: 12px; color: var(--text); line-height: 1.6;
+}
+.det-causa-label { font-size: 10px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+.det-sem-causa {
+  margin-top: 10px; padding: 8px 12px;
+  background: #ef44440a; border: 1px solid #ef444430;
+  border-radius: 8px; font-size: 12px; color: var(--red);
+}
+
+/* TÉCNICO PAGE */
+.tecnico-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; margin-bottom: 8px; overflow: hidden; cursor: pointer;
+}
+.tecnico-header { display: flex; align-items: center; gap: 10px; padding: 12px 14px; }
+.avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--bg3); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--accent); flex-shrink: 0;
+}
+.tecnico-nome { font-size: 13px; font-weight: 600; color: #fff; flex: 1; }
+.tecnico-count { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 10px; background: #f59e0b0d; border: 1px solid #f59e0b44; color: var(--accent); }
+.tecnico-sem { color: var(--red); }
+.tecnico-ordens { display: none; border-top: 1px solid var(--border); }
+.tecnico-ordens.show { display: block; }
+.tecnico-item { display: flex; gap: 8px; align-items: flex-start; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.tecnico-item:last-child { border-bottom: none; }
+.ti-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.ti-body { flex: 1; }
+.ti-equip { font-size: 12px; font-weight: 600; color: #fff; }
+.ti-desc { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.ti-linha { font-size: 10px; color: var(--muted); opacity: .6; margin-top: 1px; }
+.ti-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+
+/* OEE PAGE */
+.oee-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px; margin-bottom: 8px;
+}
+.oee-card.critical { border-color: #ef444440; background: #ef44440a; }
+.oee-card.warning  { border-color: #eab30840; background: #eab3080a; }
+.oee-card.good     { border-color: #22c55e40; background: #22c55e0a; }
+.oee-circle { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; flex-shrink: 0; }
+.oee-circle.critical { background: #ef44441a; color: var(--red); border: 2px solid #ef444455; }
+.oee-circle.warning  { background: #eab3081a; color: var(--yellow); border: 2px solid #eab30855; }
+.oee-circle.good     { background: #22c55e1a; color: var(--green); border: 2px solid #22c55e55; }
+.oee-info { flex: 1; }
+.oee-nome { font-size: 13px; font-weight: 600; color: #fff; }
+.oee-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.oee-bar-bg { height: 4px; background: var(--bg3); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+.oee-bar { height: 100%; border-radius: 2px; }
+.oee-n { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; flex-shrink: 0; }
+.oee-n.critical { background: #ef44441a; color: var(--red); }
+.oee-n.warning  { background: #eab3081a; color: var(--yellow); }
+.oee-n.good     { background: #22c55e1a; color: var(--green); }
+
+/* KPI STRIP */
+.kpi-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+.kpi { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+.kpi-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+.kpi-val { font-size: 28px; font-weight: 700; color: #fff; margin-top: 2px; }
+.kpi-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.kpi.red .kpi-val { color: var(--red); }
+.kpi.green .kpi-val { color: var(--green); }
+.kpi.yellow .kpi-val { color: var(--yellow); }
+
+/* INSIGHT */
+.insight { border-radius: 12px; padding: 12px 14px; border-left: 3px solid; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 8px; }
+.insight.red    { background: #ef444408; border-color: var(--red); }
+.insight.yellow { background: #eab30808; border-color: var(--yellow); }
+.insight.blue   { background: #3b82f608; border-color: var(--blue); }
+.insight-ico { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.insight-text { font-size: 12px; color: var(--text); line-height: 1.6; }
+.insight-text strong { color: #fff; display: block; margin-bottom: 2px; }
+
+.section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 1.25rem 0 .6rem; }
+.empty { text-align: center; color: var(--muted); font-size: 13px; padding: 2rem 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Manutenção · 20/06/2026</h1>
+  <p>06h00 – 16h00 &nbsp;·&nbsp; Equipe EM &nbsp;·&nbsp; Centro 908A</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('ordens')">Ordens</div>
+  <div class="tab" onclick="switchTab('tecnicos')">Técnicos</div>
+  <div class="tab" onclick="switchTab('oee')">OEE</div>
+</div>
+
+<!-- ===================== ORDENS ===================== -->
+<div id="page-ordens" class="page active">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search-ordens" placeholder="Buscar equipamento, problema..." oninput="filtrarOrdens()">
+  </div>
+  <div class="chips" id="chips-status">
+    <div class="chip active" onclick="setChip(this,'status','todos')" data-val="todos">Todas</div>
+    <div class="chip red" onclick="setChip(this,'status','aberto')" data-val="aberto">Em aberto</div>
+    <div class="chip green" onclick="setChip(this,'status','concluido')" data-val="concluido">Concluídas</div>
+    <div class="chip red" onclick="setChip(this,'status','sem_manut')" data-val="sem_manut">Sem técnico</div>
+  </div>
+  <div class="chips" id="chips-linha">
+    <div class="chip active" onclick="setChipLinha(this,'todas')" data-val="todas">Todas as linhas</div>
+    <div class="chip" onclick="setChipLinha(this,'buep')" data-val="buep">BueP</div>
+    <div class="chip" onclick="setChipLinha(this,'pcip')" data-val="pcip">PCiP</div>
+    <div class="chip" onclick="setChipLinha(this,'av693')" data-val="av693">Ind. AV</div>
+    <div class="chip" onclick="setChipLinha(this,'av694')" data-val="av694">Motor AV</div>
+  </div>
+  <div id="lista-ordens"></div>
+</div>
+
+<!-- ===================== TÉCNICOS ===================== -->
+<div id="page-tecnicos" class="page">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search-tec" placeholder="Buscar técnico..." oninput="filtrarTecnicos()">
+  </div>
+  <div id="lista-tecnicos"></div>
+</div>
+
+<!-- ===================== OEE ===================== -->
+<div id="page-oee" class="page">
+  <div class="kpi-strip">
+    <div class="kpi yellow"><div class="kpi-label">Total ordens</div><div class="kpi-val">31</div><div class="kpi-sub">no turno</div></div>
+    <div class="kpi red"><div class="kpi-label">Em aberto</div><div class="kpi-val">28</div><div class="kpi-sub">90% sem encerramento</div></div>
+    <div class="kpi green"><div class="kpi-label">Concluídas</div><div class="kpi-val">3</div><div class="kpi-sub">início do turno</div></div>
+    <div class="kpi red"><div class="kpi-label">Sem técnico</div><div class="kpi-val">3</div><div class="kpi-sub">sem alocação</div></div>
+  </div>
+
+  <div class="section-title">OEE — Linhas principais</div>
+  <div class="oee-card critical">
+    <div class="oee-circle critical">61%</div>
+    <div class="oee-info"><div class="oee-nome">Linha Motor PCiP</div><div class="oee-sub">S309 · CC 684309 · 2 ordens</div><div class="oee-bar-bg"><div class="oee-bar" style="width:61%;background:var(--red)"></div></div></div>
+    <span class="oee-n critical">⚠ Crítico</span>
+  </div>
+  <div class="oee-card warning">
+    <div class="oee-circle warning">65%</div>
+    <div class="oee-info"><div class="oee-nome">Linha Induzido BueP</div><div class="oee-sub">S307 · CC 684307 · 8 ordens</div><div class="oee-bar-bg"><div class="oee-bar" style="width:65%;background:var(--yellow)"></div></div></div>
+    <span class="oee-n warning">Atenção</span>
+  </div>
+  <div class="oee-card warning">
+    <div class="oee-circle warning">74%</div>
+    <div class="oee-info"><div class="oee-nome">Linha Induzido AV</div><div class="oee-sub">S693 · CC 684184 · 6 ordens</div><div class="oee-bar-bg"><div class="oee-bar" style="width:74%;background:var(--yellow)"></div></div></div>
+    <span class="oee-n warning">Atenção</span>
+  </div>
+  <div class="oee-card good">
+    <div class="oee-circle good">76%</div>
+    <div class="oee-info"><div class="oee-nome">Linha Motor AV</div><div class="oee-sub">S694 · CC 684530 · 3 ordens</div><div class="oee-bar-bg"><div class="oee-bar" style="width:76%;background:var(--green)"></div></div></div>
+    <span class="oee-n good">OK</span>
+  </div>
+
+  <div class="section-title">Insights</div>
+  <div class="insight red"><div class="insight-ico">⚡</div><div class="insight-text"><strong>Bobinadora 3 — reincidência no turno</strong>2 chamados para o mesmo defeito (05:53 e 08:44), totalizando 49 min. Causa raiz não encerrada.</div></div>
+  <div class="insight red"><div class="insight-ico">⚡</div><div class="insight-text"><strong>Isoladora AV — 3 ocorrências seguidas</strong>Máscara caindo na St4 entre 06:56 e 10:57. Sem resolução definitiva no turno.</div></div>
+  <div class="insight yellow"><div class="insight-ico">⚠</div><div class="insight-text"><strong>Pico 06h–08h: 9 ordens em 2 horas</strong>Partida turbulenta com demanda simultânea em 6 linhas.</div></div>
+  <div class="insight blue"><div class="insight-ico">ℹ</div><div class="insight-text"><strong>28 ordens em aberto na passagem de turno</strong>Próxima equipe recebe 90% das pendências sem causa raiz documentada.</div></div>
+</div>
+
+<script>
+const ordens = [
+  { ordem:"908501261093", equip:"Injetora 1 Engel 200t", desc:"Robô não aciona o automático", linha:"Injetoras Mancal FPG", local:"S694", status:"aberto", manut:"Matheus Batista Soares", ini:"01:09", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261094", equip:"Injetora 1 Engel 200t", desc:"Termo em alarme", linha:"Injetoras Mancal FPG", local:"S694", status:"concluido", manut:"Matheus Batista Soares", ini:"01:11", fim:"02:11", causa:"Alarme de fluxo — reset do alarme, operando normalmente. Causa raiz não encontrada.", texto:"Problema: Alarme de fluxo. Ação: Reset do alarme. Causa raiz: não encontrada.", parada:true },
+  { ordem:"908501261098", equip:"Bobinadora 2 (Aut.)", desc:"Vazamento de ar", linha:"Induzido CEP (S392)", local:"S392", status:"concluido", manut:"Alex Rodrigues Gualberto", ini:"01:58", fim:"02:28", causa:"Mangueiras pneumáticas substituídas. Causa raiz: fim de vida útil. Melhoria: TPM.", texto:"Problema: Vazamento de ar. Onde: Sistema pneumático. Ação: Substituída mangueira pneumática, espiral e pistola de ar. Causa raiz: fim de vida útil. Melhoria: TPM.", parada:true },
+  { ordem:"908501261100", equip:"Balanceadora Schenck", desc:"Não libera porta-peça no sensor ID", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", manut:"Anderson Aparecido Gasparino", ini:"02:11", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261104", equip:"Injetora Victory 350t", desc:"Sensor do stop danificado", linha:"Injetoras Mancal FPG", local:"S694", status:"concluido", manut:"Matheus Batista Soares", ini:"02:59", fim:"03:59", causa:"Sensor do cilindro final do stop reencaixado e fixado. Causa raiz: enrosco.", texto:"Problema: Sensor do cilindro final do stop solto. Ação: Sensor reencaixado e fixado. Causa raiz: enrosco.", parada:true },
+  { ordem:"908501261107", equip:"Prensa Coletor", desc:"Variação de calagem", linha:"Induzido AV (S693)", local:"av693", status:"aberto", manut:"Alex Rodrigues Gualberto", ini:"04:19", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261109", equip:"Bobinadora 3", desc:"Elevador entrada parando WT", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", manut:"Alex Rodrigues Gualberto", ini:"05:53", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261110", equip:"Robô KR6 Magnetizadora", desc:"Falha na garra do robô", linha:"Motor GBM (S115)", local:"outros", status:"aberto", manut:"Lucas Daniel Disselli de Almeida", ini:"06:28", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261118", equip:"Isoladora", desc:"Máscara caindo na St4 (1ª ocorrência)", linha:"Induzido AV (S693)", local:"av693", status:"aberto", manut:"Vinicius Salmazo Rufino", ini:"06:56", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261121", equip:"Torno (Acabamento)", desc:"VT passando direto", linha:"Induzido AV (S693)", local:"av693", status:"aberto", manut:"Marcio Joventino", ini:"07:19", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261122", equip:"ST Pós Induzido Pré Mont. Embal.", desc:"Robô travado", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", manut:"William Kenji Katsurada", ini:"07:19", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261124", equip:"Conexão mangueira de ar", desc:"Troca da conexão da mangueira de ar", linha:"Linha Manivela (PSA527)", local:"outros", status:"aberto", manut:"Lucas Daniel Disselli de Almeida", ini:"07:30", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261125", equip:"Alim. Paraf./Carc./Microzela", desc:"Sensor quebrado", linha:"Motor PCiP (S309)", local:"pcip", status:"aberto", manut:"Anderson Aparecido Gasparino", ini:"07:32", fim:"—", causa:"", texto:"Sensor com conector quebrado. Novo sensor requisitado. Montado conector provisório M12 4P (original M8 4P).", parada:false },
+  { ordem:"908501261126", equip:"Bobinadora Vertical 1", desc:"Abrindo bandeija", linha:"Induzido AV (S693)", local:"av693", status:"aberto", manut:"Vinicius Salmazo Rufino", ini:"07:36", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261130", equip:"Balanceadora L2", desc:"Roldana do bracinho quebrada", linha:"Induzido L2 EKP (S137)", local:"outros", status:"aberto", manut:"Lucas Daniel Disselli de Almeida", ini:"07:55", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261135", equip:"Bobinadora 3", desc:"Enrosco de porta-peças no elevador (2ª ocorrência)", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", manut:"Lucas Daniel Disselli de Almeida", ini:"08:44", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261140", equip:"Isoladora", desc:"Sensores da corrente falhando", linha:"Induzido AV (S693)", local:"av693", status:"aberto", manut:"Lucas Rodrigues Lopes", ini:"09:19", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261141", equip:"Soldar Tampa WSM3", desc:"Falha de posição home eixo Y", linha:"Tampa WSM (PSA502)", local:"outros", status:"aberto", manut:"Lucas Rodrigues Lopes", ini:"09:37", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261143", equip:"Montar Engrenagem", desc:"Falha na estação P4", linha:"Motor AV (S694)", local:"av694", status:"aberto", manut:"Vinicius Salmazo Rufino", ini:"10:04", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261146", equip:"Testar Performance 2", desc:"Reteste — rotação alta", linha:"Motor AV (S694)", local:"av694", status:"aberto", manut:"Lucas Rodrigues Lopes", ini:"10:39", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261148", equip:"Isoladora", desc:"Máscara caindo na St4 (3ª ocorrência)", linha:"Induzido AV (S693)", local:"av693", status:"aberto", manut:"Vinicius Salmazo Rufino", ini:"10:57", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261149", equip:"Recravadora Posto 1010", desc:"Elevador não levanta", linha:"Motor Link (PSA507)", local:"outros", status:"aberto", manut:"Marcio Joventino", ini:"10:59", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261150", equip:"Máquina de Solda (Aut.)", desc:"Mola do indexador cabeçote 1 quebrada", linha:"Induzido CEP (S392)", local:"outros", status:"aberto", manut:"Marcio Joventino", ini:"11:03", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261151", equip:"Bobinadora 5", desc:"Enrosco de VT no elevador", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", manut:"Marcio Joventino", ini:"11:29", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261152", equip:"Prensa Coletor", desc:"Parando no meio do ciclo", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", manut:"", ini:"11:32", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261153", equip:"Recravadora Posto 1010", desc:"IHM desligando", linha:"Motor Link (PSA507)", local:"outros", status:"aberto", manut:"Lucas Rodrigues Lopes", ini:"11:52", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261156", equip:"Prensar Pastilha no Mancal", desc:"Falha na liberação da pastilha", linha:"Motor AV (S694)", local:"av694", status:"aberto", manut:"Lucas Rodrigues Lopes", ini:"13:03", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261158", equip:"Bancada de Montar C-Clip", desc:"Sensor danificado", linha:"Motor Link (PSA507)", local:"outros", status:"aberto", manut:"Lucas Rodrigues Lopes", ini:"13:18", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261163", equip:"Solda Coletor 2", desc:"Sensor de temperatura em mau contato", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", manut:"William Kenji Katsurada", ini:"15:10", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261166", equip:"Esteira alimentação imã", desc:"Não acionando", linha:"Motor PCiP (S309)", local:"pcip", status:"aberto", manut:"", ini:"16:21", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261167", equip:"Isoladora", desc:"Exaustão desligou", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", manut:"", ini:"16:31", fim:"—", causa:"", texto:"", parada:false },
+];
+
+let filtroStatus = "todos";
+let filtroLinha = "todas";
+let buscaOrdens = "";
+
+function statusColor(o) {
+  if (o.status === "concluido") return "var(--green)";
+  if (!o.manut) return "var(--red)";
+  return "var(--yellow)";
+}
+
+function tagStatus(o) {
+  if (o.status === "concluido") return `<span class="tag-sm tag-done">Concluído</span>`;
+  if (!o.manut) return `<span class="tag-sm tag-sem">Sem técnico</span>`;
+  return `<span class="tag-sm tag-open">Em aberto</span>`;
+}
+
+function initials(nome) {
+  if (!nome) return "—";
+  const p = nome.split(" ");
+  return (p[0][0] + (p[1] ? p[1][0] : "")).toUpperCase();
+}
+
+function renderOrdens() {
+  const lista = document.getElementById("lista-ordens");
+  const q = buscaOrdens.toLowerCase();
+  const filtradas = ordens.filter(o => {
+    const matchStatus = filtroStatus === "todos" ? true
+      : filtroStatus === "aberto" ? o.status === "aberto" && o.manut
+      : filtroStatus === "concluido" ? o.status === "concluido"
+      : filtroStatus === "sem_manut" ? !o.manut
+      : true;
+    const matchLinha = filtroLinha === "todas" ? true : o.local === filtroLinha;
+    const matchBusca = !q || o.equip.toLowerCase().includes(q) || o.desc.toLowerCase().includes(q) || o.linha.toLowerCase().includes(q) || o.manut.toLowerCase().includes(q);
+    return matchStatus && matchLinha && matchBusca;
+  });
+
+  if (!filtradas.length) { lista.innerHTML = `<div class="empty">Nenhuma ordem encontrada</div>`; return; }
+
+  lista.innerHTML = filtradas.map(o => `
+    <div class="ordem-card" id="card-${o.ordem}" onclick="toggleDetalhe('${o.ordem}')">
+      <div class="ordem-header">
+        <div class="ordem-dot" style="background:${statusColor(o)}"></div>
+        <div class="ordem-body">
+          <div class="ordem-equip">${o.equip}</div>
+          <div class="ordem-desc">${o.desc}</div>
+          <div class="ordem-meta">
+            ${tagStatus(o)}
+            <span class="tag-sm tag-hora">${o.ini}</span>
+            <span class="tag-sm tag-manut">${o.manut ? initials(o.manut) + ' · ' + o.manut.split(" ")[0] : '—'}</span>
+          </div>
+        </div>
+        <span class="chevron" id="chev-${o.ordem}">▾</span>
+      </div>
+      <div class="detalhe" id="det-${o.ordem}">
+        <div class="det-row"><span class="det-label">Ordem SAP</span><span class="det-val">${o.ordem}</span></div>
+        <div class="det-row"><span class="det-label">Linha</span><span class="det-val">${o.linha}</span></div>
+        <div class="det-row"><span class="det-label">Técnico</span><span class="det-val">${o.manut || '⚠ Não alocado'}</span></div>
+        <div class="det-row"><span class="det-label">Abertura</span><span class="det-val">${o.ini}</span></div>
+        <div class="det-row"><span class="det-label">Encerramento</span><span class="det-val">${o.fim}</span></div>
+        <div class="det-row"><span class="det-label">Status</span><span class="det-val">${o.status === 'concluido' ? '✅ Concluído tecnicamente' : '🔄 Em aberto'}</span></div>
+        ${o.causa ? `<div class="det-causa"><div class="det-causa-label">Causa raiz / Ação</div>${o.causa}</div>` : `<div class="det-sem-causa">Causa raiz não registrada</div>`}
+        ${o.texto && o.texto !== o.causa ? `<div class="det-row" style="margin-top:6px"><span class="det-label">Detalhes</span><span class="det-val" style="font-size:11px;color:var(--muted)">${o.texto}</span></div>` : ''}
+      </div>
+    </div>
+  `).join("");
+}
+
+function toggleDetalhe(id) {
+  const det = document.getElementById("det-" + id);
+  const chev = document.getElementById("chev-" + id);
+  const card = document.getElementById("card-" + id);
+  const isOpen = det.classList.contains("show");
+  det.classList.toggle("show", !isOpen);
+  chev.classList.toggle("open", !isOpen);
+  card.classList.toggle("open-detail", !isOpen);
+}
+
+function setChip(el, type, val) {
+  document.querySelectorAll("#chips-status .chip").forEach(c => c.classList.remove("active"));
+  el.classList.add("active");
+  filtroStatus = val;
+  renderOrdens();
+}
+
+function setChipLinha(el, val) {
+  document.querySelectorAll("#chips-linha .chip").forEach(c => c.classList.remove("active"));
+  el.classList.add("active");
+  filtroLinha = val;
+  renderOrdens();
+}
+
+function filtrarOrdens() {
+  buscaOrdens = document.getElementById("search-ordens").value;
+  renderOrdens();
+}
+
+// TÉCNICOS
+function renderTecnicos(q = "") {
+  const lista = document.getElementById("lista-tecnicos");
+  const grupos = {};
+  ordens.forEach(o => {
+    const key = o.manut || "__sem__";
+    if (!grupos[key]) grupos[key] = [];
+    grupos[key].push(o);
+  });
+
+  const sorted = Object.entries(grupos).sort((a,b) => b[1].length - a[1].length);
+  const filtrados = q ? sorted.filter(([nome]) => nome.toLowerCase().includes(q.toLowerCase())) : sorted;
+
+  if (!filtrados.length) { lista.innerHTML = `<div class="empty">Nenhum técnico encontrado</div>`; return; }
+
+  lista.innerHTML = filtrados.map(([nome, ords]) => {
+    const isSem = nome === "__sem__";
+    const nomeDisplay = isSem ? "Sem técnico alocado" : nome;
+    const ini = initials(isSem ? "" : nome);
+    const concl = ords.filter(o => o.status === "concluido").length;
+
+    return `
+      <div class="tecnico-card">
+        <div class="tecnico-header" onclick="toggleTecnico('${nome.replace(/'/g,"\\'")}')">
+          <div class="avatar ${isSem ? 'tecnico-sem' : ''}">${isSem ? '⚠' : ini}</div>
+          <span class="tecnico-nome">${nomeDisplay}</span>
+          <span class="tecnico-count" style="${isSem ? 'color:var(--red);border-color:#ef444444;background:#ef44440d' : ''}">${ords.length} ordem${ords.length>1?'s':''}</span>
+        </div>
+        <div class="tecnico-ordens" id="tec-${nome}">
+          ${concl > 0 ? `<div style="padding:6px 14px 2px;font-size:11px;color:var(--green)">✅ ${concl} concluída${concl>1?'s':''} neste turno</div>` : ''}
+          ${ords.map(o => `
+            <div class="tecnico-item">
+              <div class="ti-dot" style="background:${statusColor(o)}"></div>
+              <div class="ti-body">
+                <div class="ti-equip">${o.equip}</div>
+                <div class="ti-desc">${o.desc}</div>
+                <div class="ti-linha">${o.linha}</div>
+                <div class="ti-tags">
+                  ${tagStatus(o)}
+                  <span class="tag-sm tag-hora">${o.ini}</span>
+                  ${o.causa ? `<span class="tag-sm" style="background:#22c55e0d;color:var(--green);border-color:#22c55e40">Causa registrada</span>` : ''}
+                </div>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function toggleTecnico(nome) {
+  const el = document.getElementById("tec-" + nome);
+  if (el) el.classList.toggle("show");
+}
+
+function filtrarTecnicos() {
+  renderTecnicos(document.getElementById("search-tec").value);
+}
+
+function switchTab(tab) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  event.target.classList.add("active");
+  document.getElementById("page-" + tab).classList.add("active");
+}
+
+renderOrdens();
+renderTecnicos();
+</script>
+</body>
+</html>
