@@ -3,119 +3,193 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Manutenção · 20/06/2026</title>
+<title>Plantão Manutenção EM · 20/06/2026</title>
 <style>
 :root {
+  /* Bosch Corporate Design */
+  --bosch-red:       #E20015;
+  --bosch-fuchsia:   #B90276;
+  --bosch-violet:    #50237F;
+  --bosch-blue-dark: #005691;
+  --bosch-blue:      #008ECF;
+  --bosch-teal:      #00A8B0;
+  --bosch-green:     #78BE20;
+  --bosch-green-dk:  #006249;
+  --bosch-gray-dk:   #525F6B;
+  --bosch-gray:      #BFC0C2;
+  /* versões claras para texto em fundo escuro */
+  --violet-lt: #9B6FD4;
+
   --bg: #0f1117; --bg2: #181b24; --bg3: #1e2130;
   --border: #2a2e3f; --text: #e8eaf0; --muted: #6b7080;
-  --accent: #f59e0b; --red: #ef4444; --green: #22c55e;
-  --yellow: #eab308; --blue: #3b82f6;
+
+  /* SEMÂNTICA DE COR — regras fixas */
+  /* OEE por faixa */
+  --oee-crit: var(--bosch-red);     /* < 65 */
+  --oee-warn: var(--bosch-blue);    /* 65–75 */
+  --oee-good: var(--bosch-green);   /* > 75 */
+  /* Status */
+  --st-aberto:    var(--bosch-blue-dark);
+  --st-concluido: var(--bosch-green);
+  /* Tipo de atividade */
+  --tipo-eletrico:   var(--bosch-blue);
+  --tipo-mecanico:   var(--bosch-violet);
+  --tipo-pneumatico: var(--bosch-teal);
 }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: system-ui,-apple-system,sans-serif; font-size: 14px; max-width: 480px; margin: 0 auto; padding: 0 0 4rem; }
+body { background: var(--bg); color: var(--text); font-family: system-ui,-apple-system,sans-serif; font-size: 14px; line-height: 1.5; max-width: 480px; margin: 0 auto; padding: 0 0 4rem; }
 
 /* HEADER */
-.header { padding: 1.25rem 1rem .75rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 10; }
-.header h1 { font-size: 17px; font-weight: 700; color: #fff; }
-.header p { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.header { padding: 1rem; border-bottom: 2px solid var(--bosch-red); position: sticky; top: 0; background: var(--bg); z-index: 10; display: flex; align-items: center; gap: 12px; }
+.header-logos { flex-shrink: 0; }
+.header-logos img { display: block; }
+.header-text h1 { font-size: 14px; font-weight: 700; color: #fff; }
+.header-text p { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
 /* TABS */
-.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: var(--bg); position: sticky; top: 64px; z-index: 9; }
-.tab { flex: 1; padding: 10px 4px; font-size: 12px; font-weight: 600; color: var(--muted); text-align: center; cursor: pointer; border-bottom: 2px solid transparent; transition: all .15s; }
-.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--bg); position: sticky; top: 68px; z-index: 9; }
+.tab { flex: 1; padding: 11px 4px; font-size: 12px; font-weight: 600; color: var(--muted); text-align: center; cursor: pointer; border-bottom: 2px solid transparent; transition: all .15s; }
+.tab.active { color: var(--bosch-blue); border-bottom-color: var(--bosch-blue); }
 
-/* PAGES */
 .page { display: none; padding: 1rem; }
 .page.active { display: block; }
 
+.section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 1.25rem 0 .6rem; display: flex; align-items: center; gap: 8px; }
+.section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.section-title:first-child { margin-top: 0; }
+
+/* CARD genérico */
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+
 /* SEARCH */
 .search-wrap { position: relative; margin-bottom: 1rem; }
-.search-wrap input {
-  width: 100%; padding: 10px 14px 10px 36px;
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 10px; color: var(--text); font-size: 13px;
-  outline: none;
-}
-.search-wrap input:focus { border-color: var(--accent); }
+.search-wrap input { width: 100%; padding: 10px 14px 10px 36px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; outline: none; }
+.search-wrap input:focus { border-color: var(--bosch-blue); }
 .search-wrap input::placeholder { color: var(--muted); }
 .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; pointer-events: none; }
 
-/* FILTER CHIPS */
+/* CHIPS */
 .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
-.chip {
-  font-size: 11px; font-weight: 600; padding: 4px 10px;
-  border-radius: 20px; border: 1px solid var(--border);
-  background: var(--bg2); color: var(--muted); cursor: pointer;
-  transition: all .15s;
-}
-.chip.active { background: #f59e0b1a; border-color: #f59e0b55; color: var(--accent); }
-.chip.red.active { background: #ef44441a; border-color: #ef444455; color: var(--red); }
-.chip.green.active { background: #22c55e1a; border-color: #22c55e55; color: var(--green); }
+.chip { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg2); color: var(--muted); cursor: pointer; transition: all .15s; }
+.chip.active { background: rgba(0,142,207,.12); border-color: rgba(0,142,207,.5); color: var(--bosch-blue); }
+
+/* KPI */
+.kpi-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+.kpi { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; position: relative; overflow: hidden; }
+.kpi::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.kpi.c-blue::before  { background: var(--bosch-blue); }
+.kpi.c-red::before   { background: var(--bosch-red); }
+.kpi.c-green::before { background: var(--bosch-green); }
+.kpi.c-teal::before  { background: var(--bosch-teal); }
+.kpi-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+.kpi-val { font-size: 30px; font-weight: 700; color: #fff; margin-top: 2px; }
+.kpi-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.kpi.c-blue  .kpi-val { color: var(--bosch-blue); }
+.kpi.c-red   .kpi-val { color: var(--bosch-red); }
+.kpi.c-green .kpi-val { color: var(--bosch-green); }
+.kpi.c-teal  .kpi-val { color: var(--bosch-teal); }
+
+/* DONUT */
+.donut-wrap { display: flex; align-items: center; gap: 20px; }
+.donut-legend { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.leg-row { display: flex; align-items: center; gap: 8px; }
+.leg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.leg-label { font-size: 11px; color: var(--muted); flex: 1; }
+.leg-val { font-size: 12px; font-weight: 700; color: #fff; }
+
+/* OEE CARDS */
+.oee-cards { display: flex; flex-direction: column; gap: 8px; }
+.oee-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; }
+.oee-card.f-crit { border-color: rgba(226,0,21,.4);   background: rgba(226,0,21,.05); }
+.oee-card.f-warn { border-color: rgba(0,142,207,.4);  background: rgba(0,142,207,.05); }
+.oee-card.f-good { border-color: rgba(120,190,32,.4); background: rgba(120,190,32,.05); }
+.oee-circle { width: 58px; height: 58px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; flex-shrink: 0; }
+.oee-circle.f-crit { background: rgba(226,0,21,.15);   color: var(--bosch-red);   border: 2px solid rgba(226,0,21,.5); }
+.oee-circle.f-warn { background: rgba(0,142,207,.15);  color: var(--bosch-blue);  border: 2px solid rgba(0,142,207,.5); }
+.oee-circle.f-good { background: rgba(120,190,32,.15); color: var(--bosch-green); border: 2px solid rgba(120,190,32,.5); }
+.oee-info { flex: 1; }
+.oee-nome { font-size: 13px; font-weight: 600; color: #fff; }
+.oee-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.oee-bar-bg { height: 5px; background: var(--bg3); border-radius: 3px; margin-top: 8px; overflow: hidden; }
+.oee-bar { height: 100%; border-radius: 3px; }
+.oee-n { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; flex-shrink: 0; }
+.oee-n.f-crit { background: rgba(226,0,21,.15);   color: var(--bosch-red); }
+.oee-n.f-warn { background: rgba(0,142,207,.15);  color: var(--bosch-blue); }
+.oee-n.f-good { background: rgba(120,190,32,.15); color: var(--bosch-green); }
+
+/* BAR CHART empilhado */
+.bar-chart { display: flex; flex-direction: column; gap: 10px; }
+.bc-row { display: flex; flex-direction: column; gap: 4px; }
+.bc-top { display: flex; align-items: baseline; gap: 8px; }
+.bc-name { font-size: 11px; color: var(--text); flex: 1; }
+.bc-mix { font-size: 10px; color: var(--muted); }
+.bc-count { font-size: 12px; font-weight: 700; color: #fff; }
+.bc-track { height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+.bc-stack { display: flex; height: 100%; }
+
+/* LEGEND inline */
+.legend-inline { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 10px; }
+.li-item { display: flex; align-items: center; gap: 5px; }
+.li-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.li-label { font-size: 11px; color: var(--muted); }
+
+/* TOTAIS por tipo */
+.tipo-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
+.tipo-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; }
+.tipo-label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
+.tipo-val { font-size: 24px; font-weight: 700; margin-top: 2px; }
+.tipo-pct { font-size: 10px; color: var(--muted); }
+
+/* INSIGHTS */
+.insight { border-radius: 10px; padding: 12px 14px; border-left: 3px solid; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 8px; }
+.insight.i-red  { background: rgba(226,0,21,.06);  border-color: var(--bosch-red); }
+.insight.i-blue { background: rgba(0,86,145,.06);  border-color: var(--bosch-blue-dark); }
+.insight.i-teal { background: rgba(0,168,176,.06); border-color: var(--bosch-teal); }
+.insight-ico { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.insight-text { font-size: 12px; color: var(--text); line-height: 1.6; }
+.insight-text strong { color: #fff; display: block; margin-bottom: 2px; }
 
 /* ORDEM CARD */
-.ordem-card {
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 12px; margin-bottom: 8px; overflow: hidden;
-  cursor: pointer; transition: border-color .15s;
-}
-.ordem-card:hover { border-color: var(--accent); }
-.ordem-card.open-detail { border-color: var(--accent); }
+.ordem-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; overflow: hidden; cursor: pointer; transition: border-color .15s; }
 .ordem-header { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; }
 .ordem-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
 .ordem-body { flex: 1; min-width: 0; }
 .ordem-equip { font-size: 13px; font-weight: 600; color: #fff; }
 .ordem-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
 .ordem-meta { display: flex; gap: 6px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
-.tag-sm {
-  font-size: 10px; font-weight: 600; padding: 2px 7px;
-  border-radius: 8px; border: 1px solid var(--border);
-}
-.tag-open { background: #eab3080d; color: var(--yellow); border-color: #eab30840; }
-.tag-done { background: #22c55e0d; color: var(--green); border-color: #22c55e40; }
-.tag-hora { background: var(--bg3); color: var(--muted); border-color: var(--border); }
-.tag-manut { background: #3b82f60d; color: var(--blue); border-color: #3b82f640; }
-.tag-sem { background: #ef44440d; color: var(--red); border-color: #ef444440; }
+.tag-sm { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 8px; border: 1px solid var(--border); }
+.tag-open  { background: rgba(0,86,145,.1);  color: var(--bosch-blue-dark); border-color: rgba(0,86,145,.4); }
+.tag-done  { background: rgba(120,190,32,.1); color: var(--bosch-green); border-color: rgba(120,190,32,.4); }
+.tag-hora  { background: var(--bg3); color: var(--muted); }
+.tag-manut { background: rgba(0,168,176,.1); color: var(--bosch-teal); border-color: rgba(0,168,176,.4); }
+.tag-tipo-e { background: rgba(0,142,207,.1); color: var(--bosch-blue); border-color: rgba(0,142,207,.4); }
+.tag-tipo-m { background: rgba(80,35,127,.12); color: var(--violet-lt); border-color: rgba(80,35,127,.5); }
+.tag-tipo-p { background: rgba(0,168,176,.1); color: var(--bosch-teal); border-color: rgba(0,168,176,.4); }
 .chevron { color: var(--muted); font-size: 12px; flex-shrink: 0; transition: transform .2s; margin-top: 2px; }
 .chevron.open { transform: rotate(180deg); }
-
-/* DETALHE */
-.detalhe {
-  display: none; padding: 0 14px 14px;
-  border-top: 1px solid var(--border);
-  background: var(--bg3);
-}
+.detalhe { display: none; padding: 0 14px 14px; border-top: 1px solid var(--border); background: var(--bg3); }
 .detalhe.show { display: block; }
 .det-row { display: flex; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--border); }
 .det-row:last-child { border-bottom: none; }
 .det-label { font-size: 11px; color: var(--muted); min-width: 90px; flex-shrink: 0; }
 .det-val { font-size: 12px; color: var(--text); flex: 1; }
-.det-causa {
-  margin-top: 10px; padding: 10px 12px;
-  background: #22c55e0a; border: 1px solid #22c55e30;
-  border-radius: 8px; font-size: 12px; color: var(--text); line-height: 1.6;
-}
-.det-causa-label { font-size: 10px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
-.det-sem-causa {
-  margin-top: 10px; padding: 8px 12px;
-  background: #ef44440a; border: 1px solid #ef444430;
-  border-radius: 8px; font-size: 12px; color: var(--red);
-}
+.det-causa { margin-top: 10px; padding: 10px 12px; background: rgba(120,190,32,.08); border: 1px solid rgba(120,190,32,.3); border-radius: 8px; font-size: 12px; color: var(--text); line-height: 1.6; }
+.det-causa-label { font-size: 10px; font-weight: 700; color: var(--bosch-green); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+.det-sem-causa { margin-top: 10px; padding: 8px 12px; background: rgba(0,86,145,.08); border: 1px solid rgba(0,86,145,.3); border-radius: 8px; font-size: 12px; color: var(--bosch-blue); }
 
-/* TÉCNICO PAGE */
-.tecnico-card {
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 12px; margin-bottom: 8px; overflow: hidden; cursor: pointer;
-}
+/* TÉCNICO */
+.tecnico-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; overflow: hidden; cursor: pointer; }
 .tecnico-header { display: flex; align-items: center; gap: 10px; padding: 12px 14px; }
-.avatar {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: var(--bg3); border: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 700; color: var(--accent); flex-shrink: 0;
-}
-.tecnico-nome { font-size: 13px; font-weight: 600; color: #fff; flex: 1; }
-.tecnico-count { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 10px; background: #f59e0b0d; border: 1px solid #f59e0b44; color: var(--accent); }
-.tecnico-sem { color: var(--red); }
+.avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; border: 1.5px solid; }
+.av-0 { background: rgba(0,142,207,.12); color: var(--bosch-blue);    border-color: rgba(0,142,207,.4); }
+.av-1 { background: rgba(0,168,176,.12); color: var(--bosch-teal);    border-color: rgba(0,168,176,.4); }
+.av-2 { background: rgba(80,35,127,.12); color: var(--violet-lt);     border-color: rgba(80,35,127,.5); }
+.av-3 { background: rgba(120,190,32,.12);color: var(--bosch-green);   border-color: rgba(120,190,32,.4); }
+.av-4 { background: rgba(185,2,118,.12); color: var(--bosch-fuchsia); border-color: rgba(185,2,118,.4); }
+.av-5 { background: rgba(0,86,145,.15);  color: var(--bosch-blue);    border-color: rgba(0,86,145,.5); }
+.tecnico-nome { font-size: 12px; font-weight: 600; flex: 1; color: var(--text); }
+.tec-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: rgba(0,142,207,.1); border: 1px solid rgba(0,142,207,.4); color: var(--bosch-blue); }
 .tecnico-ordens { display: none; border-top: 1px solid var(--border); }
 .tecnico-ordens.show { display: block; }
 .tecnico-item { display: flex; gap: 8px; align-items: flex-start; padding: 10px 14px; border-bottom: 1px solid var(--border); }
@@ -127,79 +201,196 @@ body { background: var(--bg); color: var(--text); font-family: system-ui,-apple-
 .ti-linha { font-size: 10px; color: var(--muted); opacity: .6; margin-top: 1px; }
 .ti-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
 
-/* OEE PAGE */
-.oee-card {
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 14px; padding: 14px 16px;
-  display: flex; align-items: center; gap: 14px; margin-bottom: 8px;
-}
-.oee-card.critical { border-color: #ef444440; background: #ef44440a; }
-.oee-card.warning  { border-color: #eab30840; background: #eab3080a; }
-.oee-card.good     { border-color: #22c55e40; background: #22c55e0a; }
-.oee-circle { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; flex-shrink: 0; }
-.oee-circle.critical { background: #ef44441a; color: var(--red); border: 2px solid #ef444455; }
-.oee-circle.warning  { background: #eab3081a; color: var(--yellow); border: 2px solid #eab30855; }
-.oee-circle.good     { background: #22c55e1a; color: var(--green); border: 2px solid #22c55e55; }
-.oee-info { flex: 1; }
-.oee-nome { font-size: 13px; font-weight: 600; color: #fff; }
-.oee-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.oee-bar-bg { height: 4px; background: var(--bg3); border-radius: 2px; margin-top: 8px; overflow: hidden; }
-.oee-bar { height: 100%; border-radius: 2px; }
-.oee-n { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; flex-shrink: 0; }
-.oee-n.critical { background: #ef44441a; color: var(--red); }
-.oee-n.warning  { background: #eab3081a; color: var(--yellow); }
-.oee-n.good     { background: #22c55e1a; color: var(--green); }
-
-/* KPI STRIP */
-.kpi-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
-.kpi { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
-.kpi-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
-.kpi-val { font-size: 28px; font-weight: 700; color: #fff; margin-top: 2px; }
-.kpi-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
-.kpi.red .kpi-val { color: var(--red); }
-.kpi.green .kpi-val { color: var(--green); }
-.kpi.yellow .kpi-val { color: var(--yellow); }
-
-/* INSIGHT */
-.insight { border-radius: 12px; padding: 12px 14px; border-left: 3px solid; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 8px; }
-.insight.red    { background: #ef444408; border-color: var(--red); }
-.insight.yellow { background: #eab30808; border-color: var(--yellow); }
-.insight.blue   { background: #3b82f608; border-color: var(--blue); }
-.insight-ico { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
-.insight-text { font-size: 12px; color: var(--text); line-height: 1.6; }
-.insight-text strong { color: #fff; display: block; margin-bottom: 2px; }
-
-.section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 1.25rem 0 .6rem; }
 .empty { text-align: center; color: var(--muted); font-size: 13px; padding: 2rem 0; }
+
+footer { margin-top: 2rem; padding: 1rem; border-top: 1px solid var(--border); font-size: 10px; color: var(--muted); text-align: center; }
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <div class="header">
-  <h1>Manutenção · 20/06/2026</h1>
-  <p>06h00 – 16h00 &nbsp;·&nbsp; Equipe EM &nbsp;·&nbsp; Centro 908A</p>
+  <div class="header-logos">
+    <img src="data:image/png;base64,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" alt="TEF" height="36">
+  </div>
+  <div class="header-text">
+    <h1>CaP/TEF · Plantão Manutenção EM</h1>
+    <p>20/06/26 · 06h00–16h00 · Leandro Galvão</p>
+  </div>
 </div>
 
 <div class="tabs">
-  <div class="tab active" onclick="switchTab('ordens')">Ordens</div>
-  <div class="tab" onclick="switchTab('tecnicos')">Técnicos</div>
-  <div class="tab" onclick="switchTab('oee')">OEE</div>
+  <div class="tab active" onclick="switchTab('oee',this)">OEE</div>
+  <div class="tab" onclick="switchTab('ordens',this)">Ordens</div>
+  <div class="tab" onclick="switchTab('tecnicos',this)">Técnicos</div>
+</div>
+
+<!-- ===================== OEE ===================== -->
+<div id="page-oee" class="page active">
+
+  <div class="kpi-strip">
+    <div class="kpi c-blue"><div class="kpi-label">Total ordens</div><div class="kpi-val">31</div><div class="kpi-sub">no turno</div></div>
+    <div class="kpi c-red"><div class="kpi-label">Em aberto</div><div class="kpi-val">28</div><div class="kpi-sub">90% do total</div></div>
+    <div class="kpi c-green"><div class="kpi-label">Concluídas</div><div class="kpi-val">3</div><div class="kpi-sub">início do turno</div></div>
+    <div class="kpi c-teal"><div class="kpi-label">Linhas atendidas</div><div class="kpi-val">9</div><div class="kpi-sub">no turno</div></div>
+  </div>
+
+  <!-- DONUT só de status -->
+  <div class="section-title">Status das ordens</div>
+  <div class="card">
+    <div class="donut-wrap">
+      <svg width="90" height="90" viewBox="0 0 90 90">
+        <circle cx="45" cy="45" r="35" fill="none" stroke="var(--bg3)" stroke-width="12"/>
+        <!-- Aberto: 198.6 de 219.9 -->
+        <circle cx="45" cy="45" r="35" fill="none" stroke="#005691" stroke-width="12"
+          stroke-dasharray="198.6 21.3" stroke-dashoffset="0" transform="rotate(-90 45 45)"/>
+        <!-- Concluído: 21.3 -->
+        <circle cx="45" cy="45" r="35" fill="none" stroke="#78BE20" stroke-width="12"
+          stroke-dasharray="21.3 198.6" stroke-dashoffset="-198.6" transform="rotate(-90 45 45)"/>
+        <text x="45" y="42" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">31</text>
+        <text x="45" y="55" text-anchor="middle" fill="#6b7080" font-size="8">ordens</text>
+      </svg>
+      <div class="donut-legend">
+        <div class="leg-row"><div class="leg-dot" style="background:#005691"></div><span class="leg-label">Em aberto</span><span class="leg-val">28</span></div>
+        <div class="leg-row"><div class="leg-dot" style="background:#78BE20"></div><span class="leg-label">Concluídas</span><span class="leg-val">3</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OEE por linha — cor SEMPRE pela faixa -->
+  <div class="section-title">OEE por linha</div>
+  <div class="legend-inline">
+    <div class="li-item"><div class="li-dot" style="background:#E20015"></div><span class="li-label">&lt; 65% crítico</span></div>
+    <div class="li-item"><div class="li-dot" style="background:#008ECF"></div><span class="li-label">65–75% atenção</span></div>
+    <div class="li-item"><div class="li-dot" style="background:#78BE20"></div><span class="li-label">&gt; 75% bom</span></div>
+  </div>
+  <div class="oee-cards">
+    <div class="oee-card f-crit">
+      <div class="oee-circle f-crit">61%</div>
+      <div class="oee-info">
+        <div class="oee-nome">Linha Motor PCiP</div>
+        <div class="oee-sub">S309 · CC 684309 · 2 ordens</div>
+        <div class="oee-bar-bg"><div class="oee-bar" style="width:61%;background:#E20015"></div></div>
+      </div>
+      <span class="oee-n f-crit">Crítico</span>
+    </div>
+    <div class="oee-card f-warn">
+      <div class="oee-circle f-warn">65%</div>
+      <div class="oee-info">
+        <div class="oee-nome">Linha Induzido BueP</div>
+        <div class="oee-sub">S307 · CC 684307 · 8 ordens</div>
+        <div class="oee-bar-bg"><div class="oee-bar" style="width:65%;background:#008ECF"></div></div>
+      </div>
+      <span class="oee-n f-warn">Atenção</span>
+    </div>
+    <div class="oee-card f-warn">
+      <div class="oee-circle f-warn">74%</div>
+      <div class="oee-info">
+        <div class="oee-nome">Linha Induzido AV</div>
+        <div class="oee-sub">S693 · CC 684184 · 6 ordens</div>
+        <div class="oee-bar-bg"><div class="oee-bar" style="width:74%;background:#008ECF"></div></div>
+      </div>
+      <span class="oee-n f-warn">Atenção</span>
+    </div>
+    <div class="oee-card f-good">
+      <div class="oee-circle f-good">76%</div>
+      <div class="oee-info">
+        <div class="oee-nome">Linha Motor AV</div>
+        <div class="oee-sub">S694 · CC 684530 · 3 ordens</div>
+        <div class="oee-bar-bg"><div class="oee-bar" style="width:76%;background:#78BE20"></div></div>
+      </div>
+      <span class="oee-n f-good">Bom</span>
+    </div>
+  </div>
+
+  <!-- Ordens por linha empilhado por TIPO -->
+  <div class="section-title">Ordens por linha · disciplina</div>
+  <div class="legend-inline">
+    <div class="li-item"><div class="li-dot" style="background:#008ECF"></div><span class="li-label">Elétrico</span></div>
+    <div class="li-item"><div class="li-dot" style="background:#50237F"></div><span class="li-label">Mecânico</span></div>
+    <div class="li-item"><div class="li-dot" style="background:#00A8B0"></div><span class="li-label">Pneumático</span></div>
+  </div>
+  <div class="card">
+    <div class="bar-chart">
+      <!-- escala: maior linha = 8 ordens = 100% -->
+      <div class="bc-row">
+        <div class="bc-top"><span class="bc-name">Ind. BueP (S307)</span><span class="bc-mix">6E · 2M</span><span class="bc-count">8</span></div>
+        <div class="bc-track"><div class="bc-stack" style="width:100%">
+          <div style="width:75%;background:#008ECF"></div>
+          <div style="width:25%;background:#50237F"></div>
+        </div></div>
+      </div>
+      <div class="bc-row">
+        <div class="bc-top"><span class="bc-name">Ind. AV (S693)</span><span class="bc-mix">1E · 5M</span><span class="bc-count">6</span></div>
+        <div class="bc-track"><div class="bc-stack" style="width:75%">
+          <div style="width:16.7%;background:#008ECF"></div>
+          <div style="width:83.3%;background:#50237F"></div>
+        </div></div>
+      </div>
+      <div class="bc-row">
+        <div class="bc-top"><span class="bc-name">Demais linhas</span><span class="bc-mix">6E · 4M · 2P</span><span class="bc-count">12</span></div>
+        <div class="bc-track"><div class="bc-stack" style="width:100%">
+          <div style="width:50%;background:#008ECF"></div>
+          <div style="width:33.3%;background:#50237F"></div>
+          <div style="width:16.7%;background:#00A8B0"></div>
+        </div></div>
+      </div>
+      <div class="bc-row">
+        <div class="bc-top"><span class="bc-name">Motor AV (S694)</span><span class="bc-mix">1E · 2M</span><span class="bc-count">3</span></div>
+        <div class="bc-track"><div class="bc-stack" style="width:37.5%">
+          <div style="width:33.3%;background:#008ECF"></div>
+          <div style="width:66.7%;background:#50237F"></div>
+        </div></div>
+      </div>
+      <div class="bc-row">
+        <div class="bc-top"><span class="bc-name">Motor PCiP (S309)</span><span class="bc-mix">2E</span><span class="bc-count">2</span></div>
+        <div class="bc-track"><div class="bc-stack" style="width:25%">
+          <div style="width:100%;background:#008ECF"></div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Totais por tipo -->
+  <div class="tipo-grid">
+    <div class="tipo-card" style="border-color:rgba(0,142,207,.3)">
+      <div class="tipo-label" style="color:#008ECF">Elétrico</div>
+      <div class="tipo-val" style="color:#008ECF">16</div>
+      <div class="tipo-pct">52%</div>
+    </div>
+    <div class="tipo-card" style="border-color:rgba(80,35,127,.3)">
+      <div class="tipo-label" style="color:#9B6FD4">Mecânico</div>
+      <div class="tipo-val" style="color:#9B6FD4">13</div>
+      <div class="tipo-pct">42%</div>
+    </div>
+    <div class="tipo-card" style="border-color:rgba(0,168,176,.3)">
+      <div class="tipo-label" style="color:#00A8B0">Pneumático</div>
+      <div class="tipo-val" style="color:#00A8B0">2</div>
+      <div class="tipo-pct">6%</div>
+    </div>
+  </div>
+
+  <!-- Insights -->
+  <div class="section-title">Insights de manutenção</div>
+  <div class="insight i-red"><div class="insight-ico">⚡</div><div class="insight-text"><strong>Bobinadora 3 — reincidência no turno</strong>2 chamados para o mesmo defeito no elevador (05:53 e 08:44), totalizando 49 min. Causa raiz não encerrada.</div></div>
+  <div class="insight i-red"><div class="insight-ico">⚡</div><div class="insight-text"><strong>Isoladora AV — 3 ocorrências seguidas</strong>Máscara caindo na St4 entre 06:56 e 10:57. Sem resolução definitiva no turno.</div></div>
+  <div class="insight i-blue"><div class="insight-ico">⚠</div><div class="insight-text"><strong>Pico 06h–08h: 9 ordens em 2 horas</strong>Partida turbulenta com demanda simultânea em 6 linhas.</div></div>
+  <div class="insight i-teal"><div class="insight-ico">ℹ</div><div class="insight-text"><strong>Predominância elétrica</strong>52% das ordens são de disciplina elétrica, concentradas em sensores e acionamentos.</div></div>
 </div>
 
 <!-- ===================== ORDENS ===================== -->
-<div id="page-ordens" class="page active">
+<div id="page-ordens" class="page">
   <div class="search-wrap">
     <span class="search-icon">🔍</span>
-    <input type="text" id="search-ordens" placeholder="Buscar equipamento, problema..." oninput="filtrarOrdens()">
+    <input type="text" id="search-ordens" placeholder="Buscar equipamento, problema, técnico..." oninput="filtrarOrdens()">
   </div>
   <div class="chips" id="chips-status">
-    <div class="chip active" onclick="setChip(this,'status','todos')" data-val="todos">Todas</div>
-    <div class="chip red" onclick="setChip(this,'status','aberto')" data-val="aberto">Em aberto</div>
-    <div class="chip green" onclick="setChip(this,'status','concluido')" data-val="concluido">Concluídas</div>
-    <div class="chip red" onclick="setChip(this,'status','sem_manut')" data-val="sem_manut">Sem técnico</div>
+    <div class="chip active" onclick="setChip(this,'todos')" data-val="todos">Todas</div>
+    <div class="chip" onclick="setChip(this,'aberto')" data-val="aberto">Em aberto</div>
+    <div class="chip" onclick="setChip(this,'concluido')" data-val="concluido">Concluídas</div>
   </div>
   <div class="chips" id="chips-linha">
-    <div class="chip active" onclick="setChipLinha(this,'todas')" data-val="todas">Todas as linhas</div>
+    <div class="chip active" onclick="setChipLinha(this,'todas')" data-val="todas">Todas</div>
     <div class="chip" onclick="setChipLinha(this,'buep')" data-val="buep">BueP</div>
     <div class="chip" onclick="setChipLinha(this,'pcip')" data-val="pcip">PCiP</div>
     <div class="chip" onclick="setChipLinha(this,'av693')" data-val="av693">Ind. AV</div>
@@ -217,98 +408,58 @@ body { background: var(--bg); color: var(--text); font-family: system-ui,-apple-
   <div id="lista-tecnicos"></div>
 </div>
 
-<!-- ===================== OEE ===================== -->
-<div id="page-oee" class="page">
-  <div class="kpi-strip">
-    <div class="kpi yellow"><div class="kpi-label">Total ordens</div><div class="kpi-val">31</div><div class="kpi-sub">no turno</div></div>
-    <div class="kpi red"><div class="kpi-label">Em aberto</div><div class="kpi-val">28</div><div class="kpi-sub">90% sem encerramento</div></div>
-    <div class="kpi green"><div class="kpi-label">Concluídas</div><div class="kpi-val">3</div><div class="kpi-sub">início do turno</div></div>
-    <div class="kpi red"><div class="kpi-label">Sem técnico</div><div class="kpi-val">3</div><div class="kpi-sub">sem alocação</div></div>
-  </div>
-
-  <div class="section-title">OEE — Linhas principais</div>
-  <div class="oee-card critical">
-    <div class="oee-circle critical">61%</div>
-    <div class="oee-info"><div class="oee-nome">Linha Motor PCiP</div><div class="oee-sub">S309 · CC 684309 · 2 ordens</div><div class="oee-bar-bg"><div class="oee-bar" style="width:61%;background:var(--red)"></div></div></div>
-    <span class="oee-n critical">⚠ Crítico</span>
-  </div>
-  <div class="oee-card warning">
-    <div class="oee-circle warning">65%</div>
-    <div class="oee-info"><div class="oee-nome">Linha Induzido BueP</div><div class="oee-sub">S307 · CC 684307 · 8 ordens</div><div class="oee-bar-bg"><div class="oee-bar" style="width:65%;background:var(--yellow)"></div></div></div>
-    <span class="oee-n warning">Atenção</span>
-  </div>
-  <div class="oee-card warning">
-    <div class="oee-circle warning">74%</div>
-    <div class="oee-info"><div class="oee-nome">Linha Induzido AV</div><div class="oee-sub">S693 · CC 684184 · 6 ordens</div><div class="oee-bar-bg"><div class="oee-bar" style="width:74%;background:var(--yellow)"></div></div></div>
-    <span class="oee-n warning">Atenção</span>
-  </div>
-  <div class="oee-card good">
-    <div class="oee-circle good">76%</div>
-    <div class="oee-info"><div class="oee-nome">Linha Motor AV</div><div class="oee-sub">S694 · CC 684530 · 3 ordens</div><div class="oee-bar-bg"><div class="oee-bar" style="width:76%;background:var(--green)"></div></div></div>
-    <span class="oee-n good">OK</span>
-  </div>
-
-  <div class="section-title">Insights</div>
-  <div class="insight red"><div class="insight-ico">⚡</div><div class="insight-text"><strong>Bobinadora 3 — reincidência no turno</strong>2 chamados para o mesmo defeito (05:53 e 08:44), totalizando 49 min. Causa raiz não encerrada.</div></div>
-  <div class="insight red"><div class="insight-ico">⚡</div><div class="insight-text"><strong>Isoladora AV — 3 ocorrências seguidas</strong>Máscara caindo na St4 entre 06:56 e 10:57. Sem resolução definitiva no turno.</div></div>
-  <div class="insight yellow"><div class="insight-ico">⚠</div><div class="insight-text"><strong>Pico 06h–08h: 9 ordens em 2 horas</strong>Partida turbulenta com demanda simultânea em 6 linhas.</div></div>
-  <div class="insight blue"><div class="insight-ico">ℹ</div><div class="insight-text"><strong>28 ordens em aberto na passagem de turno</strong>Próxima equipe recebe 90% das pendências sem causa raiz documentada.</div></div>
-</div>
+<footer>CaP/TEF 3 · Equipe EM · Plantão 20/06/2026 · Leandro Galvão</footer>
 
 <script>
+// Tipo: E=Elétrico, M=Mecânico, P=Pneumático
 const ordens = [
-  { ordem:"908501261093", equip:"Injetora 1 Engel 200t", desc:"Robô não aciona o automático", linha:"Injetoras Mancal FPG", local:"S694", status:"aberto", manut:"Matheus Batista Soares", ini:"01:09", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261094", equip:"Injetora 1 Engel 200t", desc:"Termo em alarme", linha:"Injetoras Mancal FPG", local:"S694", status:"concluido", manut:"Matheus Batista Soares", ini:"01:11", fim:"02:11", causa:"Alarme de fluxo — reset do alarme, operando normalmente. Causa raiz não encontrada.", texto:"Problema: Alarme de fluxo. Ação: Reset do alarme. Causa raiz: não encontrada.", parada:true },
-  { ordem:"908501261098", equip:"Bobinadora 2 (Aut.)", desc:"Vazamento de ar", linha:"Induzido CEP (S392)", local:"S392", status:"concluido", manut:"Alex Rodrigues Gualberto", ini:"01:58", fim:"02:28", causa:"Mangueiras pneumáticas substituídas. Causa raiz: fim de vida útil. Melhoria: TPM.", texto:"Problema: Vazamento de ar. Onde: Sistema pneumático. Ação: Substituída mangueira pneumática, espiral e pistola de ar. Causa raiz: fim de vida útil. Melhoria: TPM.", parada:true },
-  { ordem:"908501261100", equip:"Balanceadora Schenck", desc:"Não libera porta-peça no sensor ID", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", manut:"Anderson Aparecido Gasparino", ini:"02:11", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261104", equip:"Injetora Victory 350t", desc:"Sensor do stop danificado", linha:"Injetoras Mancal FPG", local:"S694", status:"concluido", manut:"Matheus Batista Soares", ini:"02:59", fim:"03:59", causa:"Sensor do cilindro final do stop reencaixado e fixado. Causa raiz: enrosco.", texto:"Problema: Sensor do cilindro final do stop solto. Ação: Sensor reencaixado e fixado. Causa raiz: enrosco.", parada:true },
-  { ordem:"908501261107", equip:"Prensa Coletor", desc:"Variação de calagem", linha:"Induzido AV (S693)", local:"av693", status:"aberto", manut:"Alex Rodrigues Gualberto", ini:"04:19", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261109", equip:"Bobinadora 3", desc:"Elevador entrada parando WT", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", manut:"Alex Rodrigues Gualberto", ini:"05:53", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261110", equip:"Robô KR6 Magnetizadora", desc:"Falha na garra do robô", linha:"Motor GBM (S115)", local:"outros", status:"aberto", manut:"Lucas Daniel Disselli de Almeida", ini:"06:28", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261118", equip:"Isoladora", desc:"Máscara caindo na St4 (1ª ocorrência)", linha:"Induzido AV (S693)", local:"av693", status:"aberto", manut:"Vinicius Salmazo Rufino", ini:"06:56", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261121", equip:"Torno (Acabamento)", desc:"VT passando direto", linha:"Induzido AV (S693)", local:"av693", status:"aberto", manut:"Marcio Joventino", ini:"07:19", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261122", equip:"ST Pós Induzido Pré Mont. Embal.", desc:"Robô travado", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", manut:"William Kenji Katsurada", ini:"07:19", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261124", equip:"Conexão mangueira de ar", desc:"Troca da conexão da mangueira de ar", linha:"Linha Manivela (PSA527)", local:"outros", status:"aberto", manut:"Lucas Daniel Disselli de Almeida", ini:"07:30", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261125", equip:"Alim. Paraf./Carc./Microzela", desc:"Sensor quebrado", linha:"Motor PCiP (S309)", local:"pcip", status:"aberto", manut:"Anderson Aparecido Gasparino", ini:"07:32", fim:"—", causa:"", texto:"Sensor com conector quebrado. Novo sensor requisitado. Montado conector provisório M12 4P (original M8 4P).", parada:false },
-  { ordem:"908501261126", equip:"Bobinadora Vertical 1", desc:"Abrindo bandeija", linha:"Induzido AV (S693)", local:"av693", status:"aberto", manut:"Vinicius Salmazo Rufino", ini:"07:36", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261130", equip:"Balanceadora L2", desc:"Roldana do bracinho quebrada", linha:"Induzido L2 EKP (S137)", local:"outros", status:"aberto", manut:"Lucas Daniel Disselli de Almeida", ini:"07:55", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261135", equip:"Bobinadora 3", desc:"Enrosco de porta-peças no elevador (2ª ocorrência)", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", manut:"Lucas Daniel Disselli de Almeida", ini:"08:44", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261140", equip:"Isoladora", desc:"Sensores da corrente falhando", linha:"Induzido AV (S693)", local:"av693", status:"aberto", manut:"Lucas Rodrigues Lopes", ini:"09:19", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261141", equip:"Soldar Tampa WSM3", desc:"Falha de posição home eixo Y", linha:"Tampa WSM (PSA502)", local:"outros", status:"aberto", manut:"Lucas Rodrigues Lopes", ini:"09:37", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261143", equip:"Montar Engrenagem", desc:"Falha na estação P4", linha:"Motor AV (S694)", local:"av694", status:"aberto", manut:"Vinicius Salmazo Rufino", ini:"10:04", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261146", equip:"Testar Performance 2", desc:"Reteste — rotação alta", linha:"Motor AV (S694)", local:"av694", status:"aberto", manut:"Lucas Rodrigues Lopes", ini:"10:39", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261148", equip:"Isoladora", desc:"Máscara caindo na St4 (3ª ocorrência)", linha:"Induzido AV (S693)", local:"av693", status:"aberto", manut:"Vinicius Salmazo Rufino", ini:"10:57", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261149", equip:"Recravadora Posto 1010", desc:"Elevador não levanta", linha:"Motor Link (PSA507)", local:"outros", status:"aberto", manut:"Marcio Joventino", ini:"10:59", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261150", equip:"Máquina de Solda (Aut.)", desc:"Mola do indexador cabeçote 1 quebrada", linha:"Induzido CEP (S392)", local:"outros", status:"aberto", manut:"Marcio Joventino", ini:"11:03", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261151", equip:"Bobinadora 5", desc:"Enrosco de VT no elevador", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", manut:"Marcio Joventino", ini:"11:29", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261152", equip:"Prensa Coletor", desc:"Parando no meio do ciclo", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", manut:"", ini:"11:32", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261153", equip:"Recravadora Posto 1010", desc:"IHM desligando", linha:"Motor Link (PSA507)", local:"outros", status:"aberto", manut:"Lucas Rodrigues Lopes", ini:"11:52", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261156", equip:"Prensar Pastilha no Mancal", desc:"Falha na liberação da pastilha", linha:"Motor AV (S694)", local:"av694", status:"aberto", manut:"Lucas Rodrigues Lopes", ini:"13:03", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261158", equip:"Bancada de Montar C-Clip", desc:"Sensor danificado", linha:"Motor Link (PSA507)", local:"outros", status:"aberto", manut:"Lucas Rodrigues Lopes", ini:"13:18", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261163", equip:"Solda Coletor 2", desc:"Sensor de temperatura em mau contato", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", manut:"William Kenji Katsurada", ini:"15:10", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261166", equip:"Esteira alimentação imã", desc:"Não acionando", linha:"Motor PCiP (S309)", local:"pcip", status:"aberto", manut:"", ini:"16:21", fim:"—", causa:"", texto:"", parada:false },
-  { ordem:"908501261167", equip:"Isoladora", desc:"Exaustão desligou", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", manut:"", ini:"16:31", fim:"—", causa:"", texto:"", parada:false },
+  { ordem:"908501261093", equip:"Injetora 1 Engel 200t", desc:"Robô não aciona o automático", linha:"Injetoras Mancal FPG", local:"outros", status:"aberto", tipo:"E", manut:"Matheus Batista Soares", ini:"01:09", fim:"—", causa:"" },
+  { ordem:"908501261094", equip:"Injetora 1 Engel 200t", desc:"Termo em alarme", linha:"Injetoras Mancal FPG", local:"outros", status:"concluido", tipo:"E", manut:"Matheus Batista Soares", ini:"01:11", fim:"02:11", causa:"Reset do alarme, operando normalmente. Causa raiz não encontrada." },
+  { ordem:"908501261098", equip:"Bobinadora 2 (Aut.)", desc:"Vazamento de ar", linha:"Induzido CEP (S392)", local:"outros", status:"concluido", tipo:"P", manut:"Alex Rodrigues Gualberto", ini:"01:58", fim:"02:28", causa:"Mangueiras pneumáticas substituídas. Causa raiz: fim de vida útil. Melhoria: TPM." },
+  { ordem:"908501261100", equip:"Balanceadora Schenck", desc:"Não libera porta-peça no sensor ID", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", tipo:"E", manut:"Anderson Aparecido Gasparino", ini:"02:11", fim:"—", causa:"" },
+  { ordem:"908501261104", equip:"Injetora Victory 350t", desc:"Sensor do stop danificado", linha:"Injetoras Mancal FPG", local:"outros", status:"concluido", tipo:"E", manut:"Matheus Batista Soares", ini:"02:59", fim:"03:59", causa:"Sensor reencaixado e fixado. Causa raiz: enrosco." },
+  { ordem:"908501261107", equip:"Prensa Coletor", desc:"Variação de calagem", linha:"Induzido AV (S693)", local:"av693", status:"aberto", tipo:"M", manut:"Alex Rodrigues Gualberto", ini:"04:19", fim:"—", causa:"" },
+  { ordem:"908501261109", equip:"Bobinadora 3", desc:"Elevador entrada parando WT", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", tipo:"E", manut:"Alex Rodrigues Gualberto", ini:"05:53", fim:"—", causa:"" },
+  { ordem:"908501261110", equip:"Robô KR6 Magnetizadora", desc:"Falha na garra do robô", linha:"Motor GBM (S115)", local:"outros", status:"aberto", tipo:"M", manut:"Lucas Daniel Disselli de Almeida", ini:"06:28", fim:"—", causa:"" },
+  { ordem:"908501261118", equip:"Isoladora", desc:"Máscara caindo na St4 (1ª ocorrência)", linha:"Induzido AV (S693)", local:"av693", status:"aberto", tipo:"M", manut:"Vinicius Salmazo Rufino", ini:"06:56", fim:"—", causa:"" },
+  { ordem:"908501261121", equip:"Torno (Acabamento)", desc:"VT passando direto", linha:"Induzido AV (S693)", local:"av693", status:"aberto", tipo:"M", manut:"Marcio Joventino", ini:"07:19", fim:"—", causa:"" },
+  { ordem:"908501261122", equip:"ST Pós Induzido Pré Mont.", desc:"Robô travado", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", tipo:"E", manut:"William Kenji Katsurada", ini:"07:19", fim:"—", causa:"" },
+  { ordem:"908501261124", equip:"Conexão mangueira de ar", desc:"Troca da conexão da mangueira de ar", linha:"Linha Manivela (PSA527)", local:"outros", status:"aberto", tipo:"P", manut:"Lucas Daniel Disselli de Almeida", ini:"07:30", fim:"—", causa:"" },
+  { ordem:"908501261125", equip:"Alim. Paraf./Carc./Microzela", desc:"Sensor quebrado", linha:"Motor PCiP (S309)", local:"pcip", status:"aberto", tipo:"E", manut:"Anderson Aparecido Gasparino", ini:"07:32", fim:"—", causa:"" },
+  { ordem:"908501261126", equip:"Bobinadora Vertical 1", desc:"Abrindo bandeija", linha:"Induzido AV (S693)", local:"av693", status:"aberto", tipo:"M", manut:"Vinicius Salmazo Rufino", ini:"07:36", fim:"—", causa:"" },
+  { ordem:"908501261130", equip:"Balanceadora L2", desc:"Roldana do bracinho quebrada", linha:"Induzido L2 EKP (S137)", local:"outros", status:"aberto", tipo:"M", manut:"Lucas Daniel Disselli de Almeida", ini:"07:55", fim:"—", causa:"" },
+  { ordem:"908501261135", equip:"Bobinadora 3", desc:"Enrosco de porta-peças no elevador (2ª)", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", tipo:"M", manut:"Lucas Daniel Disselli de Almeida", ini:"08:44", fim:"—", causa:"" },
+  { ordem:"908501261140", equip:"Isoladora", desc:"Sensores da corrente falhando", linha:"Induzido AV (S693)", local:"av693", status:"aberto", tipo:"E", manut:"Lucas Rodrigues Lopes", ini:"09:19", fim:"—", causa:"" },
+  { ordem:"908501261141", equip:"Soldar Tampa WSM3", desc:"Falha posição home eixo Y", linha:"Tampa WSM (PSA502)", local:"outros", status:"aberto", tipo:"E", manut:"Lucas Rodrigues Lopes", ini:"09:37", fim:"—", causa:"" },
+  { ordem:"908501261143", equip:"Montar Engrenagem", desc:"Falha na estação P4", linha:"Motor AV (S694)", local:"av694", status:"aberto", tipo:"M", manut:"Vinicius Salmazo Rufino", ini:"10:04", fim:"—", causa:"" },
+  { ordem:"908501261146", equip:"Testar Performance 2", desc:"Reteste — rotação alta", linha:"Motor AV (S694)", local:"av694", status:"aberto", tipo:"E", manut:"Lucas Rodrigues Lopes", ini:"10:39", fim:"—", causa:"" },
+  { ordem:"908501261148", equip:"Isoladora", desc:"Máscara caindo na St4 (3ª ocorrência)", linha:"Induzido AV (S693)", local:"av693", status:"aberto", tipo:"M", manut:"Vinicius Salmazo Rufino", ini:"10:57", fim:"—", causa:"" },
+  { ordem:"908501261149", equip:"Recravadora Posto 1010", desc:"Elevador não levanta", linha:"Motor Link (PSA507)", local:"outros", status:"aberto", tipo:"M", manut:"Marcio Joventino", ini:"10:59", fim:"—", causa:"" },
+  { ordem:"908501261150", equip:"Máquina de Solda (Aut.)", desc:"Mola do indexador cabeçote 1 quebrada", linha:"Induzido CEP (S392)", local:"outros", status:"aberto", tipo:"M", manut:"Marcio Joventino", ini:"11:03", fim:"—", causa:"" },
+  { ordem:"908501261151", equip:"Bobinadora 5", desc:"Enrosco de VT no elevador", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", tipo:"M", manut:"Marcio Joventino", ini:"11:29", fim:"—", causa:"" },
+  { ordem:"908501261152", equip:"Prensa Coletor", desc:"Parando no meio do ciclo", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", tipo:"E", manut:"Equipe EM", ini:"11:32", fim:"—", causa:"" },
+  { ordem:"908501261153", equip:"Recravadora Posto 1010", desc:"IHM desligando", linha:"Motor Link (PSA507)", local:"outros", status:"aberto", tipo:"E", manut:"Lucas Rodrigues Lopes", ini:"11:52", fim:"—", causa:"" },
+  { ordem:"908501261156", equip:"Prensar Pastilha no Mancal", desc:"Falha na liberação da pastilha", linha:"Motor AV (S694)", local:"av694", status:"aberto", tipo:"M", manut:"Lucas Rodrigues Lopes", ini:"13:03", fim:"—", causa:"" },
+  { ordem:"908501261158", equip:"Bancada de Montar C-Clip", desc:"Sensor danificado", linha:"Motor Link (PSA507)", local:"outros", status:"aberto", tipo:"E", manut:"Lucas Rodrigues Lopes", ini:"13:18", fim:"—", causa:"" },
+  { ordem:"908501261163", equip:"Solda Coletor 2", desc:"Sensor de temperatura em mau contato", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", tipo:"E", manut:"William Kenji Katsurada", ini:"15:10", fim:"—", causa:"" },
+  { ordem:"908501261166", equip:"Esteira alimentação imã", desc:"Não acionando", linha:"Motor PCiP (S309)", local:"pcip", status:"aberto", tipo:"E", manut:"Equipe EM", ini:"16:21", fim:"—", causa:"" },
+  { ordem:"908501261167", equip:"Isoladora", desc:"Exaustão desligou", linha:"Induzido BueP (S307)", local:"buep", status:"aberto", tipo:"E", manut:"Equipe EM", ini:"16:31", fim:"—", causa:"" },
 ];
 
-let filtroStatus = "todos";
-let filtroLinha = "todas";
-let buscaOrdens = "";
+const TIPO_LABEL = { E:"Elétrico", M:"Mecânico", P:"Pneumático" };
+const TIPO_CLASS = { E:"tag-tipo-e", M:"tag-tipo-m", P:"tag-tipo-p" };
 
-function statusColor(o) {
-  if (o.status === "concluido") return "var(--green)";
-  if (!o.manut) return "var(--red)";
-  return "var(--yellow)";
-}
+let filtroStatus = "todos", filtroLinha = "todas", buscaOrdens = "";
 
+function dotColor(o) { return o.status === "concluido" ? "#78BE20" : "#005691"; }
 function tagStatus(o) {
-  if (o.status === "concluido") return `<span class="tag-sm tag-done">Concluído</span>`;
-  if (!o.manut) return `<span class="tag-sm tag-sem">Sem técnico</span>`;
-  return `<span class="tag-sm tag-open">Em aberto</span>`;
+  return o.status === "concluido"
+    ? `<span class="tag-sm tag-done">Concluído</span>`
+    : `<span class="tag-sm tag-open">Em aberto</span>`;
 }
-
 function initials(nome) {
   if (!nome) return "—";
-  const p = nome.split(" ");
+  const p = nome.trim().split(" ");
   return (p[0][0] + (p[1] ? p[1][0] : "")).toUpperCase();
 }
 
@@ -316,29 +467,24 @@ function renderOrdens() {
   const lista = document.getElementById("lista-ordens");
   const q = buscaOrdens.toLowerCase();
   const filtradas = ordens.filter(o => {
-    const matchStatus = filtroStatus === "todos" ? true
-      : filtroStatus === "aberto" ? o.status === "aberto" && o.manut
-      : filtroStatus === "concluido" ? o.status === "concluido"
-      : filtroStatus === "sem_manut" ? !o.manut
-      : true;
-    const matchLinha = filtroLinha === "todas" ? true : o.local === filtroLinha;
-    const matchBusca = !q || o.equip.toLowerCase().includes(q) || o.desc.toLowerCase().includes(q) || o.linha.toLowerCase().includes(q) || o.manut.toLowerCase().includes(q);
-    return matchStatus && matchLinha && matchBusca;
+    const ms = filtroStatus === "todos" || o.status === filtroStatus;
+    const ml = filtroLinha === "todas" || o.local === filtroLinha;
+    const mb = !q || [o.equip,o.desc,o.linha,o.manut].join(' ').toLowerCase().includes(q);
+    return ms && ml && mb;
   });
-
   if (!filtradas.length) { lista.innerHTML = `<div class="empty">Nenhuma ordem encontrada</div>`; return; }
-
   lista.innerHTML = filtradas.map(o => `
     <div class="ordem-card" id="card-${o.ordem}" onclick="toggleDetalhe('${o.ordem}')">
       <div class="ordem-header">
-        <div class="ordem-dot" style="background:${statusColor(o)}"></div>
+        <div class="ordem-dot" style="background:${dotColor(o)}"></div>
         <div class="ordem-body">
           <div class="ordem-equip">${o.equip}</div>
           <div class="ordem-desc">${o.desc}</div>
           <div class="ordem-meta">
             ${tagStatus(o)}
+            <span class="tag-sm ${TIPO_CLASS[o.tipo]}">${TIPO_LABEL[o.tipo]}</span>
             <span class="tag-sm tag-hora">${o.ini}</span>
-            <span class="tag-sm tag-manut">${o.manut ? initials(o.manut) + ' · ' + o.manut.split(" ")[0] : '—'}</span>
+            <span class="tag-sm tag-manut">${initials(o.manut)} · ${o.manut.split(" ")[0]}</span>
           </div>
         </div>
         <span class="chevron" id="chev-${o.ordem}">▾</span>
@@ -346,87 +492,64 @@ function renderOrdens() {
       <div class="detalhe" id="det-${o.ordem}">
         <div class="det-row"><span class="det-label">Ordem SAP</span><span class="det-val">${o.ordem}</span></div>
         <div class="det-row"><span class="det-label">Linha</span><span class="det-val">${o.linha}</span></div>
-        <div class="det-row"><span class="det-label">Técnico</span><span class="det-val">${o.manut || '⚠ Não alocado'}</span></div>
+        <div class="det-row"><span class="det-label">Disciplina</span><span class="det-val">${TIPO_LABEL[o.tipo]}</span></div>
+        <div class="det-row"><span class="det-label">Técnico</span><span class="det-val">${o.manut}</span></div>
         <div class="det-row"><span class="det-label">Abertura</span><span class="det-val">${o.ini}</span></div>
         <div class="det-row"><span class="det-label">Encerramento</span><span class="det-val">${o.fim}</span></div>
         <div class="det-row"><span class="det-label">Status</span><span class="det-val">${o.status === 'concluido' ? '✅ Concluído tecnicamente' : '🔄 Em aberto'}</span></div>
-        ${o.causa ? `<div class="det-causa"><div class="det-causa-label">Causa raiz / Ação</div>${o.causa}</div>` : `<div class="det-sem-causa">Causa raiz não registrada</div>`}
-        ${o.texto && o.texto !== o.causa ? `<div class="det-row" style="margin-top:6px"><span class="det-label">Detalhes</span><span class="det-val" style="font-size:11px;color:var(--muted)">${o.texto}</span></div>` : ''}
+        ${o.causa ? `<div class="det-causa"><div class="det-causa-label">Causa raiz / Ação</div>${o.causa}</div>` : `<div class="det-sem-causa">Em aberto — causa raiz a definir</div>`}
       </div>
     </div>
   `).join("");
 }
 
 function toggleDetalhe(id) {
-  const det = document.getElementById("det-" + id);
-  const chev = document.getElementById("chev-" + id);
-  const card = document.getElementById("card-" + id);
-  const isOpen = det.classList.contains("show");
-  det.classList.toggle("show", !isOpen);
-  chev.classList.toggle("open", !isOpen);
-  card.classList.toggle("open-detail", !isOpen);
+  const det = document.getElementById("det-"+id);
+  const chev = document.getElementById("chev-"+id);
+  const card = document.getElementById("card-"+id);
+  const open = det.classList.contains("show");
+  det.classList.toggle("show", !open);
+  chev.classList.toggle("open", !open);
+  card.style.borderColor = !open ? "#008ECF" : "";
 }
-
-function setChip(el, type, val) {
+function setChip(el, val) {
   document.querySelectorAll("#chips-status .chip").forEach(c => c.classList.remove("active"));
-  el.classList.add("active");
-  filtroStatus = val;
-  renderOrdens();
+  el.classList.add("active"); filtroStatus = val; renderOrdens();
 }
-
 function setChipLinha(el, val) {
   document.querySelectorAll("#chips-linha .chip").forEach(c => c.classList.remove("active"));
-  el.classList.add("active");
-  filtroLinha = val;
-  renderOrdens();
+  el.classList.add("active"); filtroLinha = val; renderOrdens();
 }
+function filtrarOrdens() { buscaOrdens = document.getElementById("search-ordens").value; renderOrdens(); }
 
-function filtrarOrdens() {
-  buscaOrdens = document.getElementById("search-ordens").value;
-  renderOrdens();
-}
-
-// TÉCNICOS
 function renderTecnicos(q = "") {
   const lista = document.getElementById("lista-tecnicos");
   const grupos = {};
-  ordens.forEach(o => {
-    const key = o.manut || "__sem__";
-    if (!grupos[key]) grupos[key] = [];
-    grupos[key].push(o);
-  });
-
+  ordens.forEach(o => { (grupos[o.manut] = grupos[o.manut] || []).push(o); });
   const sorted = Object.entries(grupos).sort((a,b) => b[1].length - a[1].length);
-  const filtrados = q ? sorted.filter(([nome]) => nome.toLowerCase().includes(q.toLowerCase())) : sorted;
-
-  if (!filtrados.length) { lista.innerHTML = `<div class="empty">Nenhum técnico encontrado</div>`; return; }
-
-  lista.innerHTML = filtrados.map(([nome, ords]) => {
-    const isSem = nome === "__sem__";
-    const nomeDisplay = isSem ? "Sem técnico alocado" : nome;
-    const ini = initials(isSem ? "" : nome);
+  const filt = q ? sorted.filter(([n]) => n.toLowerCase().includes(q.toLowerCase())) : sorted;
+  if (!filt.length) { lista.innerHTML = `<div class="empty">Nenhum técnico encontrado</div>`; return; }
+  lista.innerHTML = filt.map(([nome, ords], idx) => {
     const concl = ords.filter(o => o.status === "concluido").length;
-
     return `
       <div class="tecnico-card">
-        <div class="tecnico-header" onclick="toggleTecnico('${nome.replace(/'/g,"\\'")}')">
-          <div class="avatar ${isSem ? 'tecnico-sem' : ''}">${isSem ? '⚠' : ini}</div>
-          <span class="tecnico-nome">${nomeDisplay}</span>
-          <span class="tecnico-count" style="${isSem ? 'color:var(--red);border-color:#ef444444;background:#ef44440d' : ''}">${ords.length} ordem${ords.length>1?'s':''}</span>
+        <div class="tecnico-header" onclick="toggleTecnico('tec-${idx}')">
+          <div class="avatar av-${idx % 6}">${initials(nome)}</div>
+          <span class="tecnico-nome">${nome}</span>
+          <span class="tec-badge">${ords.length} ordem${ords.length>1?'s':''}</span>
         </div>
-        <div class="tecnico-ordens" id="tec-${nome}">
-          ${concl > 0 ? `<div style="padding:6px 14px 2px;font-size:11px;color:var(--green)">✅ ${concl} concluída${concl>1?'s':''} neste turno</div>` : ''}
+        <div class="tecnico-ordens" id="tec-${idx}">
+          ${concl ? `<div style="padding:6px 14px 2px;font-size:11px;color:#78BE20">✅ ${concl} concluída${concl>1?'s':''}</div>` : ''}
           ${ords.map(o => `
             <div class="tecnico-item">
-              <div class="ti-dot" style="background:${statusColor(o)}"></div>
+              <div class="ti-dot" style="background:${dotColor(o)}"></div>
               <div class="ti-body">
                 <div class="ti-equip">${o.equip}</div>
                 <div class="ti-desc">${o.desc}</div>
-                <div class="ti-linha">${o.linha}</div>
+                <div class="ti-linha">${o.linha} · ${o.ini}</div>
                 <div class="ti-tags">
                   ${tagStatus(o)}
-                  <span class="tag-sm tag-hora">${o.ini}</span>
-                  ${o.causa ? `<span class="tag-sm" style="background:#22c55e0d;color:var(--green);border-color:#22c55e40">Causa registrada</span>` : ''}
+                  <span class="tag-sm ${TIPO_CLASS[o.tipo]}">${TIPO_LABEL[o.tipo]}</span>
                 </div>
               </div>
             </div>
@@ -436,21 +559,14 @@ function renderTecnicos(q = "") {
     `;
   }).join("");
 }
+function toggleTecnico(id) { const el = document.getElementById(id); if (el) el.classList.toggle("show"); }
+function filtrarTecnicos() { renderTecnicos(document.getElementById("search-tec").value); }
 
-function toggleTecnico(nome) {
-  const el = document.getElementById("tec-" + nome);
-  if (el) el.classList.toggle("show");
-}
-
-function filtrarTecnicos() {
-  renderTecnicos(document.getElementById("search-tec").value);
-}
-
-function switchTab(tab) {
+function switchTab(tab, el) {
   document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  event.target.classList.add("active");
-  document.getElementById("page-" + tab).classList.add("active");
+  el.classList.add("active");
+  document.getElementById("page-"+tab).classList.add("active");
 }
 
 renderOrdens();
